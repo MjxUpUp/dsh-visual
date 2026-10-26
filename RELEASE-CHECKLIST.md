@@ -41,9 +41,14 @@
 3. **作者**：MjxUpUp <44393475+MjxUpUp@users.noreply.github.com>。
 4. **版本号**：0.1.0（首次公开发布）。
 
+## 仓库状态
+
+- GitHub 公开仓库已建：https://github.com/MjxUpUp/dsh-visual（commit `afcdf73`，tag `v0.1.0` 已推）。
+
 ## 仍未就绪
 
 - 本机 npmjs 未登录（`npm whoami --registry=https://registry.npmjs.org/` → 401），发布前需 `npm login` 并提供 2FA。
+- 发布由你执行（npm 凭据 + 2FA 在你手里），命令见下。
 
 ## 发布步骤（确认后）
 
