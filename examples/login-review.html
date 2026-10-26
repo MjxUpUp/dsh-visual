@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+:root{--line:#e3e6ea;--text:#1f2328;--muted:#6b7280}
+body{margin:0;padding:14px 16px;font:13px/1.5 -apple-system,system-ui,sans-serif;color:var(--text)}
+h3{margin:0 0 12px;font-size:14px}
+.mock{border:1px solid var(--line);border-radius:12px;padding:16px 18px;max-width:390px;background:#fff}
+.field{border:1px solid var(--line);border-radius:9px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:var(--muted);font-size:12.5px}
+.val{letter-spacing:2px}
+.eye{background:none;border:0;cursor:pointer;color:#6b7280;padding:0;display:flex}
+.eye svg{width:16px;height:16px}
+button.login{width:100%;border:0;border-radius:9px;background:#2563eb;color:#fff;font:inherit;padding:9px 0;cursor:pointer}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+</style></head>
+<body>
+  <h3>登录页 · 密码可见性（脚本示例）</h3>
+  <div class="mock">
+    <div class="field"><span>手机号</span><span class="val">···</span></div>
+    <div class="field"><span>密码</span><span style="display:flex;gap:8px;align-items:center">
+      <span class="val" id="pwd">••••••••</span>
+      <button class="eye" id="eye" aria-label="显示密码">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      </button>
+    </span></div>
+    <div class="field"><span>验证码</span><span class="val">····</span></div>
+    <button class="login" data-visual-action="login">登录</button>
+    <p class="note">点眼睛切换明文/密文；状态通过 <code>dshVisual.setState</code> 交回模型。</p>
+  </div>
+  <script>
+    (function () {
+      // The card lives in a shadow root: query through dshVisual.root, not document.
+      var root = (typeof dshVisual !== "undefined" && dshVisual.root) || document;
+      var state = { passwordVisible: false };
+      // Seed from the model-provided data when present.
+      if (typeof dshVisual !== "undefined" && dshVisual.data && typeof dshVisual.data.passwordVisible === "boolean") {
+        state.passwordVisible = window.dshVisual.data.passwordVisible;
+      }
+      function paint() {
+        root.getElementById("pwd").textContent = state.passwordVisible ? "Passw0rd!" : "••••••••";
+        root.getElementById("eye").setAttribute("aria-label", state.passwordVisible ? "隐藏密码" : "显示密码");
+        if (typeof dshVisual !== "undefined" && dshVisual.setState) dshVisual.setState({ passwordVisible: state.passwordVisible });
+      }
+      root.getElementById("eye").addEventListener("click", function (event) {
+        event.stopPropagation();
+        state.passwordVisible = !state.passwordVisible;
+        paint();
+      });
+      paint();
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,7 @@
+# dsh-visual bundle patch: one host row registering the model-facing `visual`
+# tool. The browser half (the inline-card toolview) ships through the
+# package.json `dsh.client` declaration + exports["./client"].
+- insert:
+    - id: visual
+      name: 'dsh-visual'
+      inject: [tools]

@@ -1,0 +1,67 @@
+{
+	"name": "dsh-visual",
+	"version": "0.2.0",
+	"description": "Interactive visual cards inline in the dsh conversation: the model publishes self-contained HTML (rendered in a Shadow DOM with its own scripts) or a draggable flowchart, and the tool blocks until the user submits — comments, fields, flow and card state all come back as the tool result.",
+	"keywords": [
+		"dsh",
+		"dsh-plugin",
+		"deepseek-harness",
+		"generative-ui",
+		"artifact",
+		"cordis"
+	],
+	"type": "module",
+	"main": "lib/index.js",
+	"exports": {
+		".": {
+			"default": "./lib/index.js"
+		},
+		"./client": {
+			"default": "./lib/client.js"
+		},
+		"./cordis.patch.yml": "./cordis.patch.yml",
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"lib/index.js",
+		"lib/client.js",
+		"cordis.patch.yml",
+		"README.md",
+		"LICENSE",
+		"examples",
+		"CHANGELOG.md"
+	],
+	"license": "MIT",
+	"dsh": {
+		"bundle": {
+			"patch": "./cordis.patch.yml"
+		},
+		"client": {
+			"inject": [],
+			"platform": "web"
+		}
+	},
+	"peerDependencies": {
+		"@deepseek-ai/dsh-tools": "*",
+		"@deepseek-ai/dsh-typert-protocol": "*",
+		"react": "^18.2.0"
+	},
+	"scripts": {
+		"check": "node --check lib/index.js && node --check lib/client.js",
+		"prepublishOnly": "npm run check"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jxma/dsh-visual.git"
+	},
+	"homepage": "https://github.com/jxma/dsh-visual#readme",
+	"bugs": {
+		"url": "https://github.com/jxma/dsh-visual/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
