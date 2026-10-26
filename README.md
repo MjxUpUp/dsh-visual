@@ -4,20 +4,17 @@
 
 不经过助手文本、不发聊天消息、不是 artifact 预览——就是聊天流里一张真正的卡片。
 
+![dsh-visual card](docs/screenshot.png)
+
 ## 安装 / 卸载
 
 ```bash
-dsh plugin --profile desktop add /path/to/dsh-visual
-# 卸载
-dsh plugin --profile desktop remove dsh-visual
+dsh plugin --profile desktop add dsh-visual      # 从 npmjs 安装
+dsh plugin --profile desktop add /path/to/dsh-visual  # 本地开发（link）
+dsh plugin --profile desktop remove dsh-visual   # 卸载
 ```
 
-或者从 npm / 一个目录装：
-
-```bash
-dsh plugin --profile desktop add dsh-visual          # 已发布时
-dsh plugin --profile desktop add /path/to/dsh-visual # 本地目录
-```
+装完重启 DeepSeek Harness 生效；之后只改 `lib/client.js` 时按 ⌘R 刷新页面即可。
 
 装完**完整退出并重开** DeepSeek Harness（插件在启动时装配）；之后只改前端 bundle 时，⌘R 刷新页面即可。会话里可用的工具会多出 `visual`。
 
