@@ -1,14 +1,14 @@
-# Release checklist — dsh-visual 0.2.0
+# Release checklist — dsh-visual 0.1.0
 
-范围：npm 包 `dsh-visual@0.2.0`（宿主插件 + 手写客户端 bundle），发布到 npm registry，供 `dsh plugin add` 安装。
+范围：npm 包 `dsh-visual@0.1.0`（宿主插件 + 手写客户端 bundle），发布到 npm registry，供 `dsh plugin add` 安装。
 决策：待确认 registry / 仓库地址后执行（见文末「待你拍板」）。
 
 ## Mandatory
 
 | 项 | 状态 | 证据 |
 |---|---|---|
-| M1 版本一致性 | ✅ | `package.json` 3: `"version": "0.2.0"`；`CHANGELOG.md` 首个 `## 0.2.0`；`git tag -l` 为空（尚未打 tag）；`lib/` 内无版本常量 |
-| M2 CHANGELOG | ✅ | `## 0.2.0`、`## 0.1.0` 两节；0.2.0 记录脚本/状态/超时/交还语义/隔离修复；0.1 从未发布，无历史用户 |
+| M1 版本一致性 | ✅ | `package.json` 3: `"version": "0.1.0"`；`CHANGELOG.md` 首个 `## 0.1.0`；`git tag -l` 为空（尚未打 tag）；`lib/` 内无版本常量 |
+| M2 CHANGELOG | ✅ | `## 0.1.0` 一节；0.1.0 为首次公开发布（此前未发布过任何版本） |
 | M3 构建产物 | ✅ | 无构建步骤；`npm run check` 绿（两个入口 `node --check` + docs guard）；`npm pack` 20.5 kB / 8 files；tarball 在干净 profile 用 pnpm 实装成功 |
 | M4 数据库迁移 | N/A | 插件无持久化 |
 | M5 Secrets | ✅ | `grep -rnE '(sk-…\|ghp_…\|AKIA…\|PRIVATE KEY)'` 无命中；无 token/密钥文件 |
@@ -23,7 +23,7 @@
 | R2 已知问题 | ✅ | README「边界」：Shadow DOM 非安全沙箱、阻塞期间不能插消息、`state` 不落盘 |
 | R3 观测 | N/A | 插件无服务端；失败在卡片页脚显示 `提交失败：…` |
 | R4 公告 | ⚠ | CHANGELOG 即 release notes；如需对外公告需另写 |
-| R5 灰度 | ⚠ | 用 dist-tag：`npm publish --tag next` → 装一次验证 → `npm dist-tag add dsh-visual@0.2.0 latest` |
+| R5 灰度 | ⚠ | 用 dist-tag：`npm publish --tag next` → 装一次验证 → `npm dist-tag add dsh-visual@0.1.0 latest` |
 | R6 Forge eval | N/A | 非 Forge 门禁项目 |
 
 ## 审计中发现并已修复
@@ -34,12 +34,16 @@
 4. `files` 缺 `CHANGELOG.md` → 补上。
 5. 新增 `scripts/docs-check.mjs` 与 `.gitignore`。
 
-## 待你拍板（发布前）
+## 已拍板
 
-1. **registry**：公网 npmjs（`dsh-visual` 名字可用，E404 即未占用）还是公司 nexus（当前 `npm config get registry` 指向 nexus）？
-2. **仓库地址**：`package.json` 里现在写的是 `https://github.com/jxma/dsh-visual.git`（猜的），实际 owner/URL？
-3. **作者与版权**：`author` 字段和 LICENSE 署名。
-4. **版本号**：直接 0.2.0 首公开，还是 1.0.0？
+1. **registry**：公网 npmjs；`dsh-visual` 在 npmjs 返回 404（未占用），另有 `dsh-visual-cards` / `dsh-inline-visual` 可用，`dsh-generative-ui` 已被占用。
+2. **仓库**：`https://github.com/MjxUpUp/dsh-visual`（GitHub 账号 MjxUpUp，gh 已登录；repo scope 可用）。
+3. **作者**：MjxUpUp <44393475+MjxUpUp@users.noreply.github.com>。
+4. **版本号**：0.1.0（首次公开发布）。
+
+## 仍未就绪
+
+- 本机 npmjs 未登录（`npm whoami --registry=https://registry.npmjs.org/` → 401），发布前需 `npm login` 并提供 2FA。
 
 ## 发布步骤（确认后）
 
@@ -49,7 +53,7 @@ npm run check
 npm pack --dry-run
 npm publish --tag next         # 或 --registry https://registry.npmjs.org
 # 装一次验证
-dsh plugin --profile desktop add dsh-visual@0.2.0
-npm dist-tag add dsh-visual@0.2.0 latest
-git tag v0.2.0 && git push --tags
+dsh plugin --profile desktop add dsh-visual@0.1.0
+npm dist-tag add dsh-visual@0.1.0 latest
+git tag v0.1.0 && git push --tags
 ```
