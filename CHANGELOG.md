@@ -1,15 +1,13 @@
 # Changelog
 
-## 0.2.0
-
-- Cards now run their own inline scripts (wrapped per card as `function (dshVisual) { ... }`), so interactions and multiple parallel cards keep independent state.
-- New `data` argument seeds `dshVisual.data`; whatever the card sets through `dshVisual.setState(v)` returns as `answer.state`.
-- New `timeoutMs` argument (default 10 min, 1s–1h). Timeouts return `answer.action = "timeout"`; cancellations return `"cancelled"` and the card stays visible read-only.
-- Comment pins flip above the cursor near the card's bottom edge; card height re-measures with `ResizeObserver` and the body scrolls when content overflows.
-- The footer's neutral button is now "交还" (it never implies approval); approval must come from explicit actions such as "通过" / "要改".
-- Local actions (plain buttons without `data-visual-action`) only change the card and keep the tool waiting; terminal actions submit.
-- Docs: publishing section, state round-trip example, `examples/login-review.html`.
-
 ## 0.1.0
 
-- First working version: `visual` tool blocking on an inline HTML card, Shadow DOM rendering, right-click comments with pins, neutral submit button, draggable flow editor, host/client split through the dsh bundle patch + prebuilt client bundle.
+First public release.
+
+- `visual` tool: the model publishes an interactive card inline in the conversation and the call blocks until the user submits — the answer comes back as the tool result, not a chat message.
+- HTML cards render in a Shadow DOM with contained styles. Card scripts run per card (`function (dshVisual) { ... }`), so parallel cards keep independent state; `dshVisual.data` seeds state, `dshVisual.setState(v)` returns `answer.state`, `dshVisual.followUp(...)` submits programmatically.
+- Flow cards: draggable/renameable nodes and edges, submitted as `answer.payload.flow`.
+- Right-click any element to attach a comment with a numbered pin; comments travel in `answer.comments` along with the clicked action's payload.
+- `data-visual-action` buttons submit; `data-visual-field` controls are collected into `answer.fields`; the footer's neutral "交还" never implies approval.
+- `timeoutMs` (default 10 min, 1s–1h) returns `answer.action = "timeout"`; cancelling returns `"cancelled"` and leaves the card read-only.
+- Packaged for `dsh plugin add`, with `examples/login-review.html` and a docs/code consistency guard (`npm run check`).

@@ -1,6 +1,6 @@
 {
 	"name": "dsh-visual",
-	"version": "0.2.0",
+	"version": "0.1.0",
 	"description": "Interactive visual cards inline in the dsh conversation: the model publishes self-contained HTML (rendered in a Shadow DOM with its own scripts) or a draggable flowchart, and the tool blocks until the user submits — comments, fields, flow and card state all come back as the tool result.",
 	"keywords": [
 		"dsh",
@@ -55,14 +55,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/jxma/dsh-visual.git"
+		"url": "git+https://github.com/MjxUpUp/dsh-visual.git"
 	},
-	"homepage": "https://github.com/jxma/dsh-visual#readme",
+	"homepage": "https://github.com/MjxUpUp/dsh-visual#readme",
 	"bugs": {
-		"url": "https://github.com/jxma/dsh-visual/issues"
+		"url": "https://github.com/MjxUpUp/dsh-visual/issues"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"peerDependenciesMeta": {
 		"@deepseek-ai/dsh-tools": {
@@ -74,5 +75,6 @@
 		"react": {
 			"optional": true
 		}
-	}
+	},
+	"author": "MjxUpUp <44393475+MjxUpUp@users.noreply.github.com>"
 }
