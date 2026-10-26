@@ -24,7 +24,7 @@ No assistant text, no chat message, no artifact preview — a real card in the m
 
 ## Requirements
 
-- DeepSeek Harness `>=0.1.0-rc.1 <0.3.0-0`
+- DeepSeek Harness 0.1.0-rc.1 and newer, below 0.3 (prerelease builds included)
 - Node.js 20 or newer
 
 ## Install
