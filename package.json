@@ -47,7 +47,7 @@
 		"react": "^18.2.0"
 	},
 	"scripts": {
-		"check": "node --check lib/index.js && node --check lib/client.js",
+		"check": "node --check lib/index.js && node --check lib/client.js && node scripts/docs-check.mjs",
 		"prepublishOnly": "npm run check"
 	},
 	"engines": {
@@ -63,5 +63,16 @@
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"peerDependenciesMeta": {
+		"@deepseek-ai/dsh-tools": {
+			"optional": true
+		},
+		"@deepseek-ai/dsh-typert-protocol": {
+			"optional": true
+		},
+		"react": {
+			"optional": true
+		}
 	}
 }

@@ -33,6 +33,7 @@ visual({ title, html | flow, data?, height?, actions?, timeoutMs? })
 - `actions`：id → 按钮文案的登记表，用于卡片底部提示。
 - 调用会**一直挂着**（`timeoutMs`，默认 10 分钟，范围 1s–1h）直到用户在卡片里提交，返回 `answer: { action, payload, message, state }`。
 - 超时返回 `answer.action = "timeout"`；用户在别处打断（中止）时返回 `answer.action = "cancelled"`。卡片保留为只读，页脚会说明发生了什么。
+- `answer` 里的字段：`answer.action`；`answer.payload`（按钮上的 `data-visual-payload` 合并 `answer.fields`）；`answer.message`（卡片脚本调用 `followUp` 时带的自定义文案）；`answer.state`（`setState` 的最终值）；`answer.comments`（右键评论列表）。
 - 用户在卡片里点按钮时，插件把 `{ action, payload, message }` 作为工具结果交还模型——与 `ask_user_question` 同一思路，但是**自由形态的 HTML**。
 - 卡片底部的「交还」是**中性**按钮：只把当前评论/输入交还，**不代表同意**。审核类卡片要让模型显式提供「通过 / 要改」两个 action。
 
