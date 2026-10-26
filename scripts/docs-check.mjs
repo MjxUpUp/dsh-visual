@@ -25,6 +25,7 @@ for (const file of required) {
 }
 if (pkg.dsh?.bundle?.patch !== './cordis.patch.yml') fail('dsh.bundle.patch must point at cordis.patch.yml')
 if (!pkg.exports?.['./client']) fail('exports["./client"] is required by the client loader')
+if (!pkg.engines?.dsh) fail('engines.dsh is required by the plugin market index')
 
 // 2. README documents every tool parameter and the answer shape
 const params = ['title', 'html', 'flow', 'data', 'timeoutMs', 'height', 'actions']

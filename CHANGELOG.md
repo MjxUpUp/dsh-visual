@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1
+
+Packaging and release automation.
+
+- Declare the compatible Harness range in `engines.dsh`, which the plugin market index requires.
+- Add a tag-triggered publish workflow (checks, npm publish with provenance, GitHub Release) and a CI workflow.
+- Rewrite the README in standard OSS shape: badges, screenshot, features, requirements, install, tool contract, card protocol, development and release steps.
+- Ship `screenshots.json` and `docs/screenshot.png` so market listings can show the card.
+
 ## 0.1.0
 
 First public release.

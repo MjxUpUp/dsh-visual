@@ -1,104 +1,143 @@
 # dsh-visual
 
-给 DeepSeek Harness 加一个 `visual` 工具：模型在对话里**实时生成一张可交互卡片**，用户点按钮后，工具**阻塞到点击完成才返回**，模型拿到用户的选择继续处理。
+[![npm version](https://img.shields.io/npm/v/dsh-visual?color=black)](https://www.npmjs.com/package/dsh-visual)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-visual)](https://www.npmjs.com/package/dsh-visual)
+[![CI](https://github.com/MjxUpUp/dsh-visual/actions/workflows/ci.yml/badge.svg)](https://github.com/MjxUpUp/dsh-visual/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/dsh-visual)](LICENSE)
+[![dsh-plugin](https://img.shields.io/badge/topic-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
 
-不经过助手文本、不发聊天消息、不是 artifact 预览——就是聊天流里一张真正的卡片。
+Interactive cards inside a DeepSeek Harness conversation. The model publishes a self-contained HTML card (or a draggable flowchart), the tool **blocks until the user submits**, and the user's click, comments, form fields and card state come back as the tool result.
+
+No assistant text, no chat message, no artifact preview — a real card in the message stream.
 
 ![dsh-visual card](docs/screenshot.png)
 
-## 安装 / 卸载
+## Features
+
+- **Blocking, not fire-and-forget.** `visual` stays pending until the user submits, so the answer arrives as the tool result and the agent continues in the same turn.
+- **Scriptable cards.** Inline `<script>` runs per card through a small bridge (`dshVisual.root`, `dshVisual.setState`), so cards can toggle, validate and prefill themselves.
+- **Structured answers.** Buttons (`data-visual-action`), inputs (`data-visual-field`), comments and card state are merged into one JSON answer.
+- **Comments with pins.** Right-click any element to leave a comment; the answer carries the element's selector and label so the model knows exactly what each note is about.
+- **Flow editor.** Pass a `flow` graph instead of HTML: drag nodes, double-click to rename, connect, delete, then hand the edited graph back.
+- **Parallel safe.** Several cards in one turn each get their own bridge and state; nothing leaks between them.
+- **Cancellable and time-bounded.** `timeoutMs` and a stop button turn the card read-only instead of hanging forever.
+
+## Requirements
+
+- DeepSeek Harness `>=0.1.0-rc.1 <0.3.0-0`
+- Node.js 20 or newer
+
+## Install
 
 ```bash
-dsh plugin --profile desktop add dsh-visual      # 从 npmjs 安装
-dsh plugin --profile desktop add /path/to/dsh-visual  # 本地开发（link）
-dsh plugin --profile desktop remove dsh-visual   # 卸载
+dsh plugin --profile desktop add dsh-visual
 ```
 
-装完重启 DeepSeek Harness 生效；之后只改 `lib/client.js` 时按 ⌘R 刷新页面即可。
+Restart DeepSeek Harness once so the host half loads. After that, changes to `lib/client.js` only need a page refresh (⌘R).
 
-装完**完整退出并重开** DeepSeek Harness（插件在启动时装配）；之后只改前端 bundle 时，⌘R 刷新页面即可。会话里可用的工具会多出 `visual`。
+For local development, link the directory instead:
 
-## 工具契约
-
-```
-visual({ title, html | flow, data?, height?, actions?, timeoutMs? })
-  -> { ok, callId, id, sessionId, title, height, actions, data, answer }
-       answer = { action, payload, message?, state? }
+```bash
+dsh plugin --profile desktop add /path/to/dsh-visual
+dsh plugin --profile desktop remove dsh-visual   # uninstall
 ```
 
-- `html`：卡片的 HTML 片段（或完整文档）。模型自己写，样式自包含。
-- `actions`：id → 按钮文案的登记表，用于卡片底部提示。
-- 调用会**一直挂着**（`timeoutMs`，默认 10 分钟，范围 1s–1h）直到用户在卡片里提交，返回 `answer: { action, payload, message, state }`。
-- 超时返回 `answer.action = "timeout"`；用户在别处打断（中止）时返回 `answer.action = "cancelled"`。卡片保留为只读，页脚会说明发生了什么。
-- `answer` 里的字段：`answer.action`；`answer.payload`（按钮上的 `data-visual-payload` 合并 `answer.fields`）；`answer.message`（卡片脚本调用 `followUp` 时带的自定义文案）；`answer.state`（`setState` 的最终值）；`answer.comments`（右键评论列表）。
-- 用户在卡片里点按钮时，插件把 `{ action, payload, message }` 作为工具结果交还模型——与 `ask_user_question` 同一思路，但是**自由形态的 HTML**。
-- 卡片底部的「交还」是**中性**按钮：只把当前评论/输入交还，**不代表同意**。审核类卡片要让模型显式提供「通过 / 要改」两个 action。
+## Quick start
 
-## 卡片约定（给模型写 HTML 用）
+Ask for a card in plain language:
 
-- 按钮/链接上写 `data-visual-action="<action-id>"`，可选 `data-visual-payload='{"k":"v"}'`。
-- 输入框、下拉、文本域标 `data-visual-field="<name>"`：用户提交时，所有带标记的控件值会收集进 `answer.fields`（`textarea` 取 `value`，`input` 取 `value`，`select` 取选中的值）。
-- **本地动作 vs 终结动作**：卡片里不带 `data-visual-action` 的普通按钮（重置、撤销、切预览）只在卡片里生效，不会提交、工具继续等你；带 `data-visual-action` 的按钮才会提交。底部的 `actions` 全是终结动作。
-- 先写字再点按钮：字段在点击那一刻收集，点了按钮才填写的内容不会回传。
-- 卡片用 **Shadow DOM** 渲染：样式隔离，不会污染对话界面。**内联 `<script>` 会执行**（在消息页同一个 window 里），可以用事件监听做交互。
-- 卡片在 shadow root 里，**脚本里要用 `dshVisual.root` 查元素**，不要用 `document`（`document` 指向消息页）。
-- 脚本会被包成 `function (dshVisual) { ... }` 执行：用**裸 `dshVisual`**（它会被每个卡片实例捕获），不要用 `window.dshVisual`——并行多卡时后者会被最后渲染的卡覆盖。
-- 脚本可用的桥（由插件注入）：
-  - `dshVisual.root`：卡片的 shadow root。
-  - `dshVisual.setState(v)`：记录当前状态；用户提交时随 `answer.state` 回到模型。
-  - `dshVisual.followUp(actionId, payload, message)`：脚本里直接提交（不用等用户点按钮）。
-  - `dshVisual.resize(px)`：调整卡片高度。
-- 选择态也可以用原生 HTML 表达：`<input type="radio">`、`<details>`、`<label>`、`:checked` + CSS——不需要脚本。
-- 布局自适应高度：内容变高会自动重新量高，不需要自己算高度。
+> 用 visual 发一张发布确认卡，让我选版本并留一句备注
 
-示例：
+The model calls the tool roughly like this:
 
-```html
-<h3>下周三值班，采用哪组排班？</h3>
-<label class="opt"><input type="radio" name="g" value="A" checked> 方案 A：你 + 小林</label>
-<label class="opt"><input type="radio" name="g" value="B"> 方案 B：三人轮转</label>
-<div class="foot">
-  <button class="primary" data-visual-action="confirm" data-visual-payload='{"group":"A"}'>采用方案 A</button>
-  <button data-visual-action="shuffle">换一组</button>
-</div>
+```json
+{
+  "title": "发布确认",
+  "height": 360,
+  "html": "<h3>发 0.1.1 到 npm？</h3><textarea data-visual-field=\"note\"></textarea><button data-visual-action=\"approve\">发</button><button data-visual-action=\"hold\">先别发</button>",
+  "actions": [{ "id": "approve", "label": "发" }, { "id": "hold", "label": "先别发" }],
+  "timeoutMs": 600000
+}
 ```
 
-## 边界（当前）
+When the user clicks, the tool returns one answer object:
 
-- Shadow DOM 不是安全沙箱：卡片脚本与页面同源，能读页面 DOM 与 `localStorage`。只渲染你信任的 HTML（模型生成的也可以，但它本身已被授权）。
-- 阻塞期间该会话不能插入其他用户消息（工具调用占用中）。
-- `state` 只在**这次提交**里往返，不落盘；要跨轮恢复，把需要的字段写进你的 prompt 和 `data`。
-- 无历史卡片库、无事件队列——只保证“当前这次选择”闭环。
-
-## 状态回写
-
-```js
-visual({
-  title: '调整阈值',
-  html: '<input id="t" type="range" min="0" max="100" value="40"><button data-visual-action="apply">应用</button>',
-  data: { threshold: 40 },
-  actions: [{ id: 'apply', label: '应用' }]
-})
+```json
+{
+  "action": "approve",
+  "payload": { "fields": { "note": "记得打 tag" } },
+  "state": { "checks": ["install"] },
+  "comments": [{ "selector": "h3", "label": "h3", "text": "标题再短一点" }]
+}
 ```
+
+## Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `title` | string | Card header title. |
+| `html` | string | Complete, self-contained HTML document. Styles are scoped; scripts run per card. |
+| `flow` | object | Flow graph `{nodes, edges}` rendered as an editable canvas instead of HTML. |
+| `data` | object | Initial state exposed as `dshVisual.data` to the card script. |
+| `height` | number | Initial card height in px (160–900). The card can resize itself. |
+| `actions` | array | Action registry `{id, label}` for the footer chips and button labels. |
+| `timeoutMs` | number | How long to wait for a submit (default 10 min, max 1 h). |
+
+Every field is optional except one of `html` or `flow`.
+
+## Card protocol
+
+### Buttons and fields
+
+- `data-visual-action="id"` — clicking submits that action together with the fields, state and comments.
+- `data-visual-field="name"` — read from the card on submit and returned under `answer.payload.fields`.
+- The footer always shows a neutral **交还** button (`answer.action = "done"`). It never implies approval: review cards should carry an explicit approve/revise action of their own.
+
+### Scripts and state
 
 ```html
 <script>
-  var input = document.getElementById('t');
-  input.value = (dshVisual.data || {}).threshold || 40;
-  input.addEventListener('input', function () {
-    dshVisual.setState({ threshold: Number(input.value) });
-  });
+(function (dshVisual) {
+  var state = Object.assign({ on: false }, dshVisual.data || {})
+  dshVisual.root.querySelector('.toggle').addEventListener('click', function () {
+    state.on = !state.on
+    this.textContent = state.on ? '开' : '关'
+    dshVisual.setState(state)   // returned as answer.state
+  })
+})(dshVisual)
 </script>
 ```
 
-用户点「应用」后，`answer = { action: 'apply', payload: null, state: { threshold: 67 } }`。
+Each card is compiled as `new Function('dshVisual', source)(bridge)`, so parallel cards cannot see each other's state.
 
-## 发布
+### Comments
+
+Right-click any element inside the card, type a note, and it is pinned with a number. The answer carries them in `answer.comments` as `{ selector, label, text }`.
+
+### Timeout and cancel
+
+When `timeoutMs` elapses the call returns `action: "timeout"`; stopping the turn returns `action: "cancelled"`. In both cases the card becomes read-only and its footer explains why.
+
+## Development
 
 ```bash
-cd dsh-visual
-npm run check      # node --check 两个入口
-npm publish        # files 白名单里只有运行所需文件
+npm run check        # syntax of both entries + docs/code consistency guard
+npm pack --dry-run   # inspect the published file list
 ```
 
-`peerDependencies` 里的 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-typert-protocol`、`react` 由宿主提供；从 npm 安装时 dsh 的插件加载器会把它们重定向到安装包内的版本。
+The client half is a hand-written module-loader bundle, so no build step is required.
+
+## Releasing
+
+Publishing is automatic: pushing a `v*` tag runs the release workflow, which verifies `npm run check`, publishes to npm with provenance, and opens a GitHub Release.
+
+```bash
+npm version patch   # or minor / major
+git push --follow-tags
+```
+
+The workflow expects an `NPM_TOKEN` repository secret with publish rights to the `dsh-visual` package.
+
+## License
+
+[MIT](LICENSE) © MjxUpUp

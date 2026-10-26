@@ -1,9 +1,11 @@
 {
 	"name": "dsh-visual",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Interactive visual cards inline in the dsh conversation: the model publishes self-contained HTML (rendered in a Shadow DOM with its own scripts) or a draggable flowchart, and the tool blocks until the user submits — comments, fields, flow and card state all come back as the tool result.",
 	"keywords": [
 		"dsh",
+		"interactive",
+		"ui",
 		"dsh-plugin",
 		"deepseek-harness",
 		"generative-ui",
@@ -28,6 +30,8 @@
 		"cordis.patch.yml",
 		"README.md",
 		"LICENSE",
+		"screenshots.json",
+		"docs/screenshot.png",
 		"examples",
 		"CHANGELOG.md"
 	],
@@ -51,7 +55,8 @@
 		"prepublishOnly": "npm run check"
 	},
 	"engines": {
-		"node": ">=20"
+		"node": ">=20",
+		"dsh": ">=0.1.0-rc.1 <0.3.0-0"
 	},
 	"repository": {
 		"type": "git",
