@@ -45,10 +45,22 @@
 
 - GitHub 公开仓库已建：https://github.com/MjxUpUp/dsh-visual（commit `afcdf73`，tag `v0.1.0` 已推）。
 
+## 发布结果
+
+- **0.1.0 已上 npmjs**（2026-10-26 23:00 本地时间，maintainer `whatcanyouoffer`），`latest` 与 `next` 都指向 0.1.0。
+- 校验：从 registry 拉 tarball 与仓库逐文件 diff，`lib/index.js`、`lib/client.js`、`package.json` 完全一致；包内 8 个文件。
+- `dsh plugin --profile desktop add dsh-visual@0.1.0` 实装成功（把之前的 link 依赖替换成 registry 版本）。
+- 说明：registry 上的 `0.0.0-stage` 是 npm staged publish 的占位版本（`"stub": true, "description": "Temporary package placeholder for staged publishing"`），不是我们发布的内容；在它被 0.1.0 替换前安装会报 `ERR_PNPM_NO_MATCHING_VERSION`。
+
+## 本地开发要切回 link
+
+```bash
+dsh plugin --profile desktop add /Users/jx.ma/own-projects/dsh-visual
+```
+
 ## 仍未就绪
 
-- 本机 npmjs 未登录（`npm whoami --registry=https://registry.npmjs.org/` → 401），发布前需 `npm login` 并提供 2FA。
-- 发布由你执行（npm 凭据 + 2FA 在你手里），命令见下。
+- 无。发布凭据已登录（`whatcanyouoffer`）。
 
 ## 发布步骤（确认后）
 
