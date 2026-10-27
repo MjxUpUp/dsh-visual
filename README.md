@@ -136,7 +136,7 @@ npm version patch   # or minor / major
 git push --follow-tags
 ```
 
-The workflow expects an `NPM_TOKEN` repository secret with publish rights to the `dsh-visual` package.
+Publishing uses npm [trusted publishing](https://docs.npmjs.com/trusted-publishers/): the workflow exchanges the GitHub OIDC token for a short-lived npm credential, so no `NPM_TOKEN` secret is stored. Configure it once under the package's **Settings → Trusted publishing** on npmjs.com (owner `MjxUpUp`, repository `dsh-visual`, workflow `publish.yml`).
 
 ## License
 
